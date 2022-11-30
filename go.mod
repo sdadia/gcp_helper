@@ -1,4 +1,4 @@
-module gcp_tutorials_go
+module gcp_helper
 
 go 1.19
 
