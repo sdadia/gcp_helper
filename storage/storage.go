@@ -162,3 +162,20 @@ func ListObjects(storageClient *storage.Client, ctx context.Context, bucketName 
 	}
 	return objectNames, nil
 }
+
+func DeleteObject(storageClient *storage.Client, ctx context.Context, bucketName string, keyName string) error {
+	log.Infof("Deleting objects in %s\n", fmt.Sprintf("gs://%s/%s", bucketName, keyName))
+
+	var objectHandle = storageClient.Bucket(bucketName).Object(keyName)
+	err := objectHandle.Delete(ctx)
+	if err == storage.ErrObjectNotExist {
+		log.Fatalf("Object gs://%s/%s does not exist\n", bucketName, keyName)
+		return err
+	}
+	if err != nil {
+		log.Fatalf("Error deleting gs://%s/%s. Error is %v", bucketName, keyName, err)
+		return err
+	} else {
+		return nil
+	}
+}
