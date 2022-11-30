@@ -112,24 +112,39 @@ func UploadLocalFile(storageClient *storage.Client, ctx context.Context, bucketN
 	return nil
 }
 
-func ReadObject(storageClient *storage.Client, ctx context.Context, bucketName string, objectName string) (error, []byte) {
+func ReadFile(storageClient *storage.Client, ctx context.Context, bucketName string, objectName string) ([]byte, error) {
 	// Read the object from bucket.
 	rc, err := storageClient.Bucket(bucketName).Object(objectName).NewReader(ctx)
 	if err == storage.ErrObjectNotExist {
 		log.Fatalf("Object %s does not exist", objectName)
-		return err, nil
+		return nil, err
 	}
 	if err != nil {
 		log.Fatal(err)
-		return err, nil
+		return nil, err
 	}
 	defer rc.Close()
 	body, err := io.ReadAll(rc)
 	if err != nil {
 		log.Fatal(err)
-		return err, nil
+		return nil, err
 	}
-	return nil, body
+	return body, nil
 }
 
-
+func listObjects(storageClient *storage.Client, ctx context.Context, bucketName string) ([]string, error) {
+	var objectNames []string
+	var objIterator = storageClient.Bucket(bucketName).Objects(ctx, nil)
+	for {
+		objAttr, err := objIterator.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error reading objects from %s. Error is %v\n", bucketName, err)
+		} else {
+			objectNames = append(objectNames, objAttr.Name)
+		}
+	}
+	return objectNames, nil
+}
