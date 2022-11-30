@@ -12,7 +12,7 @@ import (
 
 func CreateClient() (*storage.Client, error) {
 	var ctx = context.Background()
-	client, err := storage.NewClient(ctx, nil)
+	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return client, err
 	}
