@@ -10,6 +10,15 @@ import (
 	"os"
 )
 
+func CreateClient() (*storage.Client, error) {
+	var ctx = context.Background()
+	client, err := storage.NewClient(ctx, nil)
+	if err != nil {
+		return client, err
+	}
+	return nil, err
+}
+
 func CreateBucket(storageClient *storage.Client, ctx context.Context, projectId string, bucketName string, bktAttrs *storage.BucketAttrs) error {
 	// check if bucket exists
 	var err error = nil
