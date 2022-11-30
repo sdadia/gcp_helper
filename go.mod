@@ -1,4 +1,4 @@
-module gcp_helper
+module github.com/sdadia/gcp_helper
 
 go 1.19
 
