@@ -25,7 +25,7 @@ func CreateBucket(storageClient *storage.Client, ctx context.Context, projectId 
 	_, err = storageClient.Bucket(bucketName).Attrs(ctx)
 	// only create if the bucket does not exist
 	if err == storage.ErrBucketNotExist {
-		log.Infof("Creating bucket")
+		log.Debugf("Creating bucket %s", bucketName)
 		// create the bucket
 		err = storageClient.Bucket(bucketName).Create(ctx, projectId, bktAttrs)
 		if err != nil {
@@ -37,31 +37,29 @@ func CreateBucket(storageClient *storage.Client, ctx context.Context, projectId 
 	if err != nil {
 		return err
 	}
-	return err
+	return nil
 }
 
 func ListBuckets(storageClient *storage.Client, ctx context.Context, projectId string) ([]string, error) {
 	// container to hold all bucket names
 	var bucketNames []string
-	var err error = nil
 
 	// list buckets
 	var bktIterator = storageClient.Buckets(ctx, projectId)
 	for {
 		var bucket, err = bktIterator.Next()
-		// Break if at end
+		// Break at end
 		if err == iterator.Done {
 			break
 		}
 		if err != nil {
 			log.Fatalf("Error while iterating thorugh buckets. Error is %v\n", err)
 			return bucketNames, err
+		} else {
+			bucketNames = append(bucketNames, bucket.Name)
 		}
-
-		bucketNames = append(bucketNames, bucket.Name)
-
 	}
-	return bucketNames, err
+	return bucketNames, nil
 }
 
 func DeleteBucket(storageClient *storage.Client, ctx context.Context, bucketName string) error {
@@ -76,6 +74,7 @@ func DeleteBucket(storageClient *storage.Client, ctx context.Context, bucketName
 	if err != nil {
 		return err
 	}
+	log.Warnf("Deleting bucket %s", bucketName)
 	err = storageClient.Bucket(bucketName).Delete(ctx)
 	if err != nil {
 		return err
