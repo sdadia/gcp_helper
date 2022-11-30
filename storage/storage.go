@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"cloud.google.com/go/storage"
 	"context"
+	"fmt"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/api/iterator"
 	"io"
@@ -83,6 +84,7 @@ func DeleteBucket(storageClient *storage.Client, ctx context.Context, bucketName
 }
 
 func UploadLocalFile(storageClient *storage.Client, ctx context.Context, bucketName string, localFilePath string, KeyName string) error {
+	log.Infof("Uploading %s to %s", localFilePath, fmt.Sprintf("gs://%s/%s", bucketName, KeyName))
 
 	// check if bucket exists
 	var _, err = storageClient.Bucket(bucketName).Attrs(ctx)
@@ -120,11 +122,13 @@ func UploadLocalFile(storageClient *storage.Client, ctx context.Context, bucketN
 	return nil
 }
 
-func ReadFile(storageClient *storage.Client, ctx context.Context, bucketName string, objectName string) ([]byte, error) {
+func ReadObject(storageClient *storage.Client, ctx context.Context, bucketName string, keyName string) ([]byte, error) {
+	log.Infof("Read object %s\n", fmt.Sprintf("gs://%s/%s", bucketName, keyName))
+
 	// Read the object from bucket.
-	rc, err := storageClient.Bucket(bucketName).Object(objectName).NewReader(ctx)
+	rc, err := storageClient.Bucket(bucketName).Object(keyName).NewReader(ctx)
 	if err == storage.ErrObjectNotExist {
-		log.Fatalf("Object %s does not exist", objectName)
+		log.Fatalf("Object %s does not exist", keyName)
 		return nil, err
 	}
 	if err != nil {
@@ -140,7 +144,9 @@ func ReadFile(storageClient *storage.Client, ctx context.Context, bucketName str
 	return body, nil
 }
 
-func listObjects(storageClient *storage.Client, ctx context.Context, bucketName string) ([]string, error) {
+func ListObjects(storageClient *storage.Client, ctx context.Context, bucketName string) ([]string, error) {
+	log.Infof("Listing objects in %s\n", fmt.Sprintf("gs://%s", bucketName))
+
 	var objectNames []string
 	var objIterator = storageClient.Bucket(bucketName).Objects(ctx, nil)
 	for {
