@@ -10,13 +10,13 @@ import (
 	"os"
 )
 
-func CreateClient() (*storage.Client, error) {
-	var ctx = context.Background()
+func CreateClient(ctx context.Context) (*storage.Client, error) {
 	client, err := storage.NewClient(ctx)
 	if err != nil {
-		return client, err
+		return nil, err
+	} else {
+		return client, nil
 	}
-	return nil, err
 }
 
 func CreateBucket(storageClient *storage.Client, ctx context.Context, projectId string, bucketName string, bktAttrs *storage.BucketAttrs) error {
